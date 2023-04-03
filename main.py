@@ -65,7 +65,7 @@ def swap(field, score, coords1, coords2, i1, j1, i2, j2):
 
 field = create_field()
 print('Game started!')
-print(f'     ╓           ╕\n       Score: {score}\n     ╘           ╛\n')
+print(f'     ╒           ╕\n       Score: {score}\n     ╘           ╛\n')
 print_field(field)
 
 while True:
@@ -76,7 +76,7 @@ while True:
 
     field, score = swap(field, score, coords1, coords2, i1, j1, i2, j2)
 
-    print(f'\n     ╓           ╕\n       Score: {score}\n     ╘           ╛\n')
+    print(f'\n     ╒           ╕\n       Score: {score}\n     ╘           ╛\n')
     print_field(field)
 
     if score >= maxScore:
