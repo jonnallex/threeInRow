@@ -1,2 +1,4 @@
 /__pycache__
 /.idea
+training.json
+env.py
