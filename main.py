@@ -10,7 +10,7 @@ size = 5
 score = env.START_SCORE
 maxScore = env.MAX_SCORE
 print_symbols = env.PRINT_SYMBOLS
-
+fail = 0
 
 def create_field():
     field = np.zeros((5, 5), dtype=int)
@@ -45,7 +45,7 @@ def print_score(score):
 
 def game_over(score):
     if score >= maxScore:
-        print(f'You scored: {score} pints\nGame over!')
+        print(f'You scored: {score} points\nYour fail: {fail} points\nGame over!')
         return True
     return False
 
@@ -92,24 +92,25 @@ def check_swap(field, coords1, coords2, i1, j1, i2, j2):
     return check
 
 
-def swap(field, score, coords1, coords2, i1, j1, i2, j2):
+def swap(field, coords1, coords2, i1, j1, i2, j2):
     # check that the coordinates are different and the shapes can be swapped
+
+    check = False
     if coords1 != coords2 and ((abs(i1 - i2) == 1 and j1 == j2) or (abs(j1 - j2) == 1 and i1 == i2)):
         field[i1][j1], field[i2][j2] = field[i2][j2], field[i1][j1]  # swap the symbols
 
         for i in range(size):
             for j in range(size):
                 if j < size - 2 and field[i][j] == field[i][j + 1] == field[i][j + 2]:
-                    score += 10
-                    field = create_field()
+                    check = True
 
                 if i < size - 2 and field[i][j] == field[i + 1][j] == field[i + 2][j]:
-                    score += 10
-                    field = create_field()
+                    check = True
     else:
         print('Wrong move!')
 
-    return field, score
+    field = create_field()
+    return field, check
 
 
 def get_training_json(field, start, end):
@@ -156,11 +157,12 @@ def get_training_labels(json_data, type):
 
 def predict_move(board_state):
     prediction = model.predict(np.array(board_state))
-    return np.argmax(prediction[0]), np.argmax(prediction[1])
+    start_position = np.argmax(prediction[0])
+    end_position = np.argmax(prediction[1])
+    return start_position, end_position
 
 
 def convert_position_to_coordinate(position):
-    position -= 1
     letters = ['A', 'B', 'C', 'D', 'E']
     numbers = ['1', '2', '3', '4', '5']
 
@@ -195,9 +197,20 @@ if game_type == '1':
         if check_swap(field, coords1, coords2, i1, j1, i2, j2):
             start = get_matrix_element_number(i1, j1)
             end = get_matrix_element_number(i2, j2)
+            # ----------------
+            print(start, end)
+            coords1 = convert_position_to_coordinate(start)
+            coords2 = convert_position_to_coordinate(end)
+            print([coords1, coords2])
+            # ----------------
             write_json_to_file(get_training_json(field, start, end))
 
-        field, score = swap(field, score, coords1, coords2, i1, j1, i2, j2)
+        field, check = swap(field, coords1, coords2, i1, j1, i2, j2)
+
+        if check:
+            score += env.PLUS_SCORE
+        else:
+            fail += 1
 
         if game_over(score):
             break
@@ -250,8 +263,14 @@ elif game_type == '2':
         coords2 = convert_position_to_coordinate(end_position)
         print('Second coords: ' + coords2)
         i2, j2 = process_coords(coords2)
+        print([coords1, coords2])
 
-        field, score = swap(field, score, coords1, coords2, i1, j1, i2, j2)
+        field, check = swap(field, coords1, coords2, i1, j1, i2, j2)
+
+        if check:
+            score += env.PLUS_SCORE
+        else:
+            fail += 1
 
         if game_over(score):
             break
