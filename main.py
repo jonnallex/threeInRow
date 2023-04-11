@@ -5,12 +5,15 @@ import numpy as np
 import json
 import os
 import env
+import platform
 
 size = 5
 score = env.START_SCORE
 maxScore = env.MAX_SCORE
-print_symbols = env.PRINT_SYMBOLS
+plus_score = env.PLUS_SCORE
 fail = 0
+print_symbols = env.PRINT_SYMBOLS
+epoch_count = env.EPOCH_COUNT
 
 def create_field():
     field = np.zeros((5, 5), dtype=int)
@@ -122,6 +125,10 @@ def get_training_json(field, start, end):
 
 
 def write_json_to_file(data, file_path=env.FILE_FOR_TRAINING_PATH):
+
+    if platform.system() != 'Windows':
+        file_path = os.path.normpath(file_path)
+
     if os.path.isfile(file_path):
         with open(file_path, 'r') as f:
             file_data = json.load(f)
@@ -176,7 +183,7 @@ def convert_position_to_coordinate(position):
     return coordinate
 
 
-# ---------------------------------------------------------main---------------------------------------------------------
+# ---------------main-function------------------------------------------------------------------------------------------
 
 
 print('Game started!')
@@ -197,18 +204,16 @@ if game_type == '1':
         if check_swap(field, coords1, coords2, i1, j1, i2, j2):
             start = get_matrix_element_number(i1, j1)
             end = get_matrix_element_number(i2, j2)
-            # ----------------
-            print(start, end)
-            coords1 = convert_position_to_coordinate(start)
-            coords2 = convert_position_to_coordinate(end)
-            print([coords1, coords2])
-            # ----------------
+            # print(start, end)
+            # coords1 = convert_position_to_coordinate(start)
+            # coords2 = convert_position_to_coordinate(end)
+            # print([coords1, coords2])
             write_json_to_file(get_training_json(field, start, end))
 
         field, check = swap(field, coords1, coords2, i1, j1, i2, j2)
 
         if check:
-            score += env.PLUS_SCORE
+            score += plus_score
         else:
             fail += 1
 
@@ -245,7 +250,7 @@ elif game_type == '2':
     model.fit(
         training_data,
         [training_labels_start, training_labels_end],
-        epochs=env.EPOCH_COUNT, batch_size=32
+        epochs=epoch_count, batch_size=32
     )
 
     field = create_field()
@@ -254,7 +259,7 @@ elif game_type == '2':
         print_field(field)
 
         start_position, end_position = predict_move([field])
-        print([start_position, end_position])
+        # print([start_position, end_position])
 
         coords1 = convert_position_to_coordinate(start_position)
         print('First coords: ' + coords1)
@@ -263,12 +268,17 @@ elif game_type == '2':
         coords2 = convert_position_to_coordinate(end_position)
         print('Second coords: ' + coords2)
         i2, j2 = process_coords(coords2)
-        print([coords1, coords2])
+        # print([coords1, coords2])
+
+        if check_swap(field, coords1, coords2, i1, j1, i2, j2):
+            start = get_matrix_element_number(i1, j1)
+            end = get_matrix_element_number(i2, j2)
+            write_json_to_file(get_training_json(field, start, end))
 
         field, check = swap(field, coords1, coords2, i1, j1, i2, j2)
 
         if check:
-            score += env.PLUS_SCORE
+            score += plus_score
         else:
             fail += 1
 

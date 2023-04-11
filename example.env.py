@@ -7,7 +7,7 @@ PRINT_SYMBOLS = {
     3: 'Y',
 }
 
-FILE_FOR_TRAINING_PATH = "...\\training.json"
+FILE_FOR_TRAINING_PATH = "..." + 'training.json'
 
 EPOCH_COUNT = 30
 
