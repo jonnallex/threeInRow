@@ -40,19 +40,6 @@ def print_field(field):
         print()
 
 
-def print_score(score):
-    print(f'\n  ╒               ╕\n'
-          f'     Score: {score}/{maxScore}\n'
-          f'  ╘               ╛\n')
-
-
-def game_over(score):
-    if score >= maxScore:
-        print(f'You scored: {score} points\nYour fail: {fail} points\nGame over!')
-        return True
-    return False
-
-
 def get_coords(coords_position):
     while True:
         coords = input('Enter ' + coords_position + ' coords (for example: A1): ').strip().upper()
@@ -75,29 +62,22 @@ def get_matrix_element_number(i, j):
         return element_number
 
 
-def check_swap(field, coords1, coords2, i1, j1, i2, j2):
-    field2 = np.copy(field)
-    check = False
+def convert_position_to_coordinate(position):
+    letters = ['A', 'B', 'C', 'D', 'E']
+    numbers = ['1', '2', '3', '4', '5']
 
-    if coords1 != coords2 and ((abs(i1 - i2) == 1 and j1 == j2) or (abs(j1 - j2) == 1 and i1 == i2)):
-        field2[i1][j1], field2[i2][j2] = field2[i2][j2], field2[i1][j1]  # swap the symbols
+    row = position // 5
+    col = position % 5
 
-        for i in range(size):
-            for j in range(size):
-                if j < size - 2 and field2[i][j] == field2[i][j + 1] == field2[i][j + 2]:
-                    check = True
-                    break
+    col_letter = letters[col]
+    row_number = numbers[row]
 
-                if i < size - 2 and field2[i][j] == field2[i + 1][j] == field2[i + 2][j]:
-                    check = True
-                    break
-
-    return check
+    coordinate = col_letter + row_number
+    return coordinate
 
 
 def swap(field, coords1, coords2, i1, j1, i2, j2):
     # check that the coordinates are different and the shapes can be swapped
-
     check = False
     if coords1 != coords2 and ((abs(i1 - i2) == 1 and j1 == j2) or (abs(j1 - j2) == 1 and i1 == i2)):
         field[i1][j1], field[i2][j2] = field[i2][j2], field[i1][j1]  # swap the symbols
@@ -112,8 +92,7 @@ def swap(field, coords1, coords2, i1, j1, i2, j2):
     else:
         print('Wrong move!')
 
-    field = create_field()
-    return field, check
+    return check
 
 
 def get_training_json(field, start, end):
@@ -169,19 +148,17 @@ def predict_move(board_state):
     return start_position, end_position
 
 
-def convert_position_to_coordinate(position):
-    letters = ['A', 'B', 'C', 'D', 'E']
-    numbers = ['1', '2', '3', '4', '5']
+def print_score(score):
+    print(f'\n  ╒               ╕\n'
+          f'     Score: {score}/{maxScore}\n'
+          f'  ╘               ╛\n')
 
-    row = position // 5
-    col = position % 5
 
-    col_letter = letters[col]
-    row_number = numbers[row]
-
-    coordinate = col_letter + row_number
-    return coordinate
-
+def game_over(score):
+    if score >= maxScore:
+        print(f'You scored: {score} points\nYour fail: {fail} points\nGame over!')
+        return True
+    return False
 
 # ---------------main-function------------------------------------------------------------------------------------------
 
@@ -201,21 +178,17 @@ if game_type == '1':
         coords2 = get_coords('second')
         i2, j2 = process_coords(coords2)
 
-        if check_swap(field, coords1, coords2, i1, j1, i2, j2):
+        check = swap(field, coords1, coords2, i1, j1, i2, j2)
+        if check:
             start = get_matrix_element_number(i1, j1)
             end = get_matrix_element_number(i2, j2)
-            # print(start, end)
-            # coords1 = convert_position_to_coordinate(start)
-            # coords2 = convert_position_to_coordinate(end)
-            # print([coords1, coords2])
             write_json_to_file(get_training_json(field, start, end))
-
-        field, check = swap(field, coords1, coords2, i1, j1, i2, j2)
-
-        if check:
             score += plus_score
+            field = create_field()
         else:
             fail += 1
+
+        field = create_field()
 
         if game_over(score):
             break
@@ -259,7 +232,6 @@ elif game_type == '2':
         print_field(field)
 
         start_position, end_position = predict_move([field])
-        # print([start_position, end_position])
 
         coords1 = convert_position_to_coordinate(start_position)
         print('First coords: ' + coords1)
@@ -268,19 +240,17 @@ elif game_type == '2':
         coords2 = convert_position_to_coordinate(end_position)
         print('Second coords: ' + coords2)
         i2, j2 = process_coords(coords2)
-        # print([coords1, coords2])
 
-        if check_swap(field, coords1, coords2, i1, j1, i2, j2):
+        check = swap(field, coords1, coords2, i1, j1, i2, j2)
+        if check:
             start = get_matrix_element_number(i1, j1)
             end = get_matrix_element_number(i2, j2)
             write_json_to_file(get_training_json(field, start, end))
-
-        field, check = swap(field, coords1, coords2, i1, j1, i2, j2)
-
-        if check:
             score += plus_score
         else:
             fail += 1
+
+        field = create_field()
 
         if game_over(score):
             break
