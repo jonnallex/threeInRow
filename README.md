@@ -1,4 +1,4 @@
-﻿# AI classic game threeInRow
+﻿# AI classic game "threeInRow"
 Іnstructions
 -------------------------
 1. Copy and rename ```example.env.py``` to ```env.py```
