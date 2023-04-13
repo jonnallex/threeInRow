@@ -1,4 +1,4 @@
-﻿# threeInRow
+﻿# AI classic game threeInRow
 Іnstructions
 -------------------------
 1. Copy and rename ```example.env.py``` to ```env.py```
@@ -6,7 +6,7 @@
 3. Run ```python main.py```  
 
 Classic simple game Three in Row on python 
-
+-------------------------
 If you move the symbols so that 3 or more symbols become horizontal or vertical, it will update the field and add +10 points 
 ```
      ╒           ╕
