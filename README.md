@@ -2,7 +2,8 @@
 Іnstructions
 -------------------------
 1. Copy and rename ```example.env.py``` to ```env.py```
-2. Change ```FILE_FOR_TRAINING_PATH``` variable 
+2. Changes the variable ```FILE_FOR_TRAINING_PATH```
+3. Run ```python main.py```  
 
 Classic simple game Three in Row on python 
 
