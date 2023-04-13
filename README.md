@@ -7,7 +7,7 @@
 
 Classic simple game Three in Row on python 
 -------------------------
-If you move the symbols so that 3 or more symbols become horizontal or vertical, it will update the field and add +10 points 
+The game has two modes: user gameplay and AI gameplay.  The user or AI interacts with the field. In this field, the symbols "O", "X", "Y" are randomly generated each game, and the main task is to make three or more identical symbols in a row horizontally or vertically. In the case of a successful game, one point is scored, if a mistake is made in the game, one mistake will be scored. The game continues until the maximum number of points is reached. Successful games are recorded in the training file for the AI. In the second mode, the game process is carried out by the AI. Based on the training file with successful games, the AI trains and starts the game process.
 ```
      ╒           ╕
        Score: 10
